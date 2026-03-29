@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testul Perioada Fanariota</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4eee1;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; }
+        .question-text {
+            font-size: 1.4em;
+            margin: 30px 0;
+            min-height: 80px;
+            font-weight: 500;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:hover { opacity: 0.9; transform: scale(1.01); }
+        .btn-strongly-agree { background-color: #1b5e20; }
+        .btn-agree { background-color: #4caf50; }
+        .btn-neutral { background-color: #9e9e9e; color: black; }
+        .btn-disagree { background-color: #f44336; }
+        .btn-strongly-disagree { background-color: #b71c1c; }
+        
+        /* Stiluri pentru rezultate */
+        .axis-container {
+            margin: 25px 0;
+            text-align: left;
+        }
+        .axis-labels {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        .bar-background {
+            width: 100%;
+            background-color: #ddd;
+            height: 35px;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .bar-left {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            color: white;
+            font-weight: bold;
+            box-sizing: border-box;
+            transition: width 1s ease-in-out;
+        }
+        .bar-right {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: bold;
+            box-sizing: border-box;
+            flex-grow: 1;
+            transition: width 1s ease-in-out;
+        }
+
+        /* Culori specifice axelor */
+        .axis-1 .bar-left { background-color: #8d6e63; } 
+        .axis-1 .bar-right { background-color: #ffb300; color: #333;} 
+        
+        .axis-2 .bar-left { background-color: #1e88e5; } 
+        .axis-2 .bar-right { background-color: #5e35b1; } 
+        
+        .axis-3 .bar-left { background-color: #fb8c00; } 
+        .axis-3 .bar-right { background-color: #43a047; } 
+        
+        .axis-4 .bar-left { background-color: #757575; } 
+        .axis-4 .bar-right { background-color: #fdd835; color: #333; } 
+        
+        .axis-5 .bar-left { background-color: #00acc1; } 
+        .axis-5 .bar-right { background-color: #e53935; } 
+        
+        .axis-6 .bar-left { background-color: #d81b60; } 
+        .axis-6 .bar-right { background-color: #3949ab; } 
+        
+        .axis-7 .bar-left { background-color: #ffca28; color: #333; } 
+        .axis-7 .bar-right { background-color: #424242; } 
+        
+        .axis-8 .bar-left { background-color: #2e7d32; } 
+        .axis-8 .bar-right { background-color: #b71c1c; } 
+        
+        .axis-9 .bar-left { background-color: #fbc02d; color: #333;} 
+        .axis-9 .bar-right { background-color: #1565c0; } 
+
+        #progress {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #666;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <h1>Testul Perioadei Fanariote</h1>
+    
+    <div id="quiz-section">
+        <div id="progress">Întrebarea 1 din X</div>
+        <div class="question-text" id="question">Se încarcă...</div>
+        
+        <button class="btn btn-strongly-agree" onclick="answer(1)">Puternic de acord</button>
+        <button class="btn btn-agree" onclick="answer(0.5)">De acord</button>
+        <button class="btn btn-neutral" onclick="answer(0)">Neutru / Nu știu</button>
+        <button class="btn btn-disagree" onclick="answer(-0.5)">Dezacord</button>
+        <button class="btn btn-strongly-disagree" onclick="answer(-1)">Puternic dezacord</button>
+    </div>
+
+    <div id="results-section" style="display: none;">
+        <h2>Rezultatele Tale Politice</h2>
+        <p>Iată unde te-ai fi situat pe eșichierul politic și ideologic din perioada fanariotă.</p>
+        <div id="axes-results"></div>
+        <button class="btn btn-neutral" onclick="location.reload()" style="margin-top: 30px;">Refă Testul</button>
+    </div>
+</div>
+
+<script>
+    // Definiția axelor cu iconițe adăugate
+    const axes = [
+        { id: 'class', iconL: '🎩', left: 'Boierist', right: 'Țărănist', iconR: '🌾', class: 'axis-1' },
+        { id: 'culture', iconL: '🏛️', left: 'Latinist', right: 'Autohtonist Bizantin', iconR: '☦️', class: 'axis-2' },
+        { id: 'economy', iconL: '⚒️', left: 'Meșteșuguri / Comerț', right: 'Agricultură', iconR: '🐂', class: 'axis-3' },
+        { id: 'philosophy', iconL: '📜', left: 'Tradiționalist', right: 'Iluminist', iconR: '💡', class: 'axis-4' },
+        { id: 'ruler', iconL: '⚓', left: 'Fanariot (Prot. Străină)', right: 'Pământean', iconR: '🏔️', class: 'axis-5' },
+        { id: 'power', iconL: '👑', left: 'Domnitor Absolutist', right: 'Sfat Boieresc', iconR: '🤝', class: 'axis-6' },
+        { id: 'habsburg', iconL: '🦅', left: 'Pro-Habsburgi', right: 'Anti-Habsburgi', iconR: '🛑', class: 'axis-7' },
+        { id: 'ottoman', iconL: '🌙', left: 'Pro-Otomani', right: 'Anti-Otomani', iconR: '⚔️', class: 'axis-8' },
+        { id: 'russian', iconL: '🐻', left: 'Pro-Ruși', right: 'Anti-Ruși', iconR: '🛡️', class: 'axis-9' }
+    ];
+
+    // Baza de date cu 45 de întrebări
+    const questions = [
+        // AXA 1: BOIERIST vs TARANIST (class)
+        { text: "Claca trebuie desființată complet, iar țăranul să devină un om liber, plătitor de bir direct vistieriei.", effects: { class: -1, economy: 0.5, philosophy: -0.5 } },
+        { text: "Doar boierii de viță veche au dreptul firesc de a deține satele și de a hotărî soarta celor de pe moșie.", effects: { class: 1, philosophy: 0.5, power: -0.5 } },
+        { text: "Fiii de țărani ar trebui să aibă dreptul să învețe carte pentru a putea intra în rândul preoților sau funcționarilor.", effects: { class: -1, philosophy: -0.5 } },
+        { text: "Datoriile țăranilor fugari trebuie plătite de comunitatea satului (răspunderea solidară), pentru ca visteria și boierul să nu piardă.", effects: { class: 1 } },
+        { text: "Pământul aparține exclusiv boierului, țăranul având doar dreptul de a-l munci dând partea cuvenită stăpânului.", effects: { class: 1 } },
+
+        // AXA 2: LATINIST vs AUTOHTONIST BIZANTIN (culture)
+        { text: "Limba elină și cea slavonă trebuie înlocuite în biserică și cancelarii cu graiul nostru de ginte latină.", effects: { culture: 1, philosophy: -0.5, ruler: -0.5 } },
+        { text: "Ortodoxia de rit bizantin și rânduielile vechi sunt singurele care ne păzesc neamul de pierzanie.", effects: { culture: -1, philosophy: 1, habsburg: -0.5 } },
+        { text: "Cronicile ar trebui scrise subliniind mai degrabă înrudirea noastră cu vechii romani decât cu popoarele balcanice de aceeași religie.", effects: { culture: 1, russian: -0.2 } },
+        { text: "Cântările bisericești și arhitectura trebuie să rămână fidele tradiției greco-bizantine, care reprezintă adevărata artă.", effects: { culture: -1, philosophy: 0.5 } },
+        { text: "A învăța limba latină și istoria Romei este mai folositor pentru tinerii noștri decât a studia teologia dogmatică.", effects: { culture: 1, philosophy: -0.5 } },
+
+        // AXA 3: MESTESUGURI/COMERT vs AGRICULTURA (economy)
+        { text: "Bogăția țării stă doar în rodul pământului și în vite; manufacturile și comerțul cu străinii aduc mai multă stricăciune moravurilor.", effects: { economy: -1, philosophy: 0.5 } },
+        { text: "Trebuie să chemăm meșteri străini și să deschidem piețele spre Europa pentru a nu mai depinde doar de agricultură.", effects: { economy: 1, philosophy: -0.5, ottoman: -0.2 } },
+        { text: "Statul ar trebui să sprijine înființarea de bresle noi și manufacturi de postav sau sticlă, scutindu-le de taxe.", effects: { economy: 1, philosophy: -0.5 } },
+        { text: "Baza societății este țăranul care ară; negustorii și meșteșugarii aduc mai multă viclenie decât valoare statului.", effects: { economy: -1, class: 0.5 } },
+        { text: "Târgurile și orașele ar trebui să primească privilegii și autonomie proprie pentru a încuraja schimbul de mărfuri.", effects: { economy: 1, power: -0.5 } },
+
+        // AXA 4: TRADITIONALIST vs ILUMINIST (philosophy)
+        { text: "Cărțile și ideile aduse din Franța ne otrăvesc tineretul cu spirit de răzvrătire și necredință.", effects: { philosophy: 1, culture: -0.5 } },
+        { text: "Legile statului trebuie scrise pe baza rațiunii și a drepturilor firești, nu doar pe 'obiceiul pământului'.", effects: { philosophy: -1, class: -0.5, power: 0.5 } },
+        { text: "Biserica trebuie să aibă ultimul cuvânt în privința cărților care pot fi tipărite în țară, pentru a opri ereziile.", effects: { philosophy: 1, culture: -0.5 } },
+        { text: "Este de datoria domnitorului să înființeze spitale, orfelinate și școli publice din banii statului.", effects: { philosophy: -1, power: 0.5 } },
+        { text: "Dreptul divin al conducerii și rânduiala cerească sunt mai presus de orice constituție scrisă de oameni de rând.", effects: { philosophy: 1, power: 0.5, class: 0.5 } },
+
+        // AXA 5: FANARIOT vs PAMANTEAN (ruler)
+        { text: "Doar un domnitor grec cultivat, adus de la Țarigrad, poate menține o administrație luminată și pacea cu Înalta Poartă.", effects: { ruler: 1, ottoman: 1, culture: -0.5 } },
+        { text: "Țara trebuie cârmuită doar de fiii ei; domniile străinilor storc vistieria și ne umilesc neamul.", effects: { ruler: -1, ottoman: -0.5, culture: 0.5 } },
+        { text: "Funcțiile înalte în stat (Marele Ban, Marele Vornic) ar trebui ocupate exclusiv de familiile vechi boierești pământene.", effects: { ruler: -1, class: 0.5 } },
+        { text: "Numirea unui domn din Fanar, care cunoaște politica marilor puteri și limbile străine, este vitală pentru diplomația țării.", effects: { ruler: 1, culture: -0.2 } },
+        { text: "Grecii și alți străini care primesc slujbe în țară ne iau pâinea de la gură și ne corup obiceiurile strămoșești.", effects: { ruler: -1, philosophy: 0.5 } },
+
+        // AXA 6: ABSOLUTIST vs OLIGARHIC/SFAT BOIERESC (power)
+        { text: "Pentru ca țara să iasă din haos, Domnitorul trebuie să aibă putere deplină, nelimitat de poftele boierilor.", effects: { power: 1, class: -0.5 } },
+        { text: "Nicio lege și niciun bir nu ar trebui impus de Domn fără încuviințarea Marelui Divan (Sfatului Boieresc).", effects: { power: -1, class: 1 } },
+        { text: "Domnitorul trebuie să aibă dreptul de a confisca averile marilor boieri care i se opun, pentru a menține ordinea statului.", effects: { power: 1, class: -1 } },
+        { text: "O adunare a marilor boieri ar trebui să aibă puterea de a alege și chiar de a mazili (demite) domnul dacă acesta încalcă legile.", effects: { power: -1, class: 1, ruler: -0.5 } },
+        { text: "Hotărârile judecătorești ale Domnitorului ar trebui să poată ocoli pravilele (legile scrise) dacă o cere 'binele statului'.", effects: { power: 1 } },
+
+        // AXA 7: PRO HABSBURGI vs ANTI HABSBURGI (habsburg)
+        { text: "Ordinea, legile și școlile nemțești din Transilvania și Bucovina sunt un exemplu demn de urmat pentru noi.", effects: { habsburg: 1, culture: 0.5, philosophy: -0.5 } },
+        { text: "Imperiul Habsburgic catolic este o amenințare la adresa credinței și a ființei noastre la fel de mare ca și turcii.", effects: { habsburg: -1, culture: -0.5 } },
+        { text: "Unirea religioasă cu Roma (greco-catolicismul) este un compromis acceptabil dacă ne aduce școli și drepturi politice.", effects: { habsburg: 1, culture: 0.5, philosophy: -0.5 } },
+        { text: "Catolicii de la Viena urmăresc doar să ne ia pământurile și să ne schimbe legea strămoșească.", effects: { habsburg: -1, culture: -0.5, philosophy: 0.5 } },
+        { text: "O alianță fermă cu Viena ne-ar asigura protecția granițelor de vest și prosperitatea comerțului cu Apusul.", effects: { habsburg: 1, economy: 0.5 } },
+
+        // AXA 8: PRO OTOMAN vs ANTI OTOMAN (ottoman)
+        { text: "Plata haraciului către Sultan este un preț mic și necesar pentru a ne asigura autonomia internă și protecția granițelor.", effects: { ottoman: 1, ruler: 0.5 } },
+        { text: "Trebuie să ne ridicăm cu armele împotriva otomanilor, indiferent de riscuri, pentru a fi cu adevărat independenți.", effects: { ottoman: -1, ruler: -1, russian: 0.5 } },
+        { text: "Plata mucarerului și a peșcheșurilor către oficialii otomani este un rău necesar, mai ieftin decât un război ruinător.", effects: { ottoman: 1, ruler: 0.5 } },
+        { text: "Raiaua (teritoriile românești ocupate direct de turci: Brăila, Giurgiu, Turnu) trebuie eliberată, chiar și cu vărsare de sânge.", effects: { ottoman: -1 } },
+        { text: "Deși vasali, ne este mai bine sub suzeranitatea slabă a Porții decât sub o ocupație directă și strictă a austriecilor sau rușilor.", effects: { ottoman: 1, russian: -0.5, habsburg: -0.5 } },
+
+        // AXA 9: PRO RUS vs ANTI RUS (russian)
+        { text: "Armatele Țarului sunt singurele care ne pot izbăvi de jugul păgânilor, ei fiind frații noștri întru Ortodoxie.", effects: { russian: 1, ottoman: -1, culture: -0.5 } },
+        { text: "Protecția rusească este doar un pretext pentru a ne transforma treptat într-o gubernie (provincie) a imperiului lor.", effects: { russian: -1, ottoman: 0.5 } },
+        { text: "Promisiunile de eliberare ale Țarului sunt iluzii; scopul real al Rusiei este să ajungă la Strâmtori trecând peste noi.", effects: { russian: -1, ottoman: 0.5 } },
+        { text: "Tratatul de la Kuciuk-Kainargi, care dă Rusiei dreptul să intervină pentru ortodocșii din Principate, este o mare victorie.", effects: { russian: 1, ottoman: -1 } },
+        { text: "Biserica noastră ar trebui să caute sprijin direct de la Sinodul din Sankt Petersburg, mai degrabă decât de la Constantinopol.", effects: { russian: 1, ruler: -0.5 } }
+    ];
+
+    let currentQuestionIndex = 0;
+    let userScores = {};
+    let maxScores = {};
+
+    // Amestecăm întrebările (shuffle) pentru a nu fi toate din aceeași categorie la rând
+    questions.sort(() => Math.random() - 0.5);
+
+    axes.forEach(axis => {
+        userScores[axis.id] = 0;
+        maxScores[axis.id] = 0;
+    });
+
+    questions.forEach(q => {
+        for (const [axis, value] of Object.entries(q.effects)) {
+            maxScores[axis] += Math.abs(value);
+        }
+    });
+
+    function renderQuestion() {
+        document.getElementById('progress').innerText = `Întrebarea ${currentQuestionIndex + 1} din ${questions.length}`;
+        document.getElementById('question').innerText = questions[currentQuestionIndex].text;
+    }
+
+    function answer(multiplier) {
+        let currentEffects = questions[currentQuestionIndex].effects;
+        
+        for (const [axis, value] of Object.entries(currentEffects)) {
+            userScores[axis] += value * multiplier;
+        }
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('results-section').style.display = 'block';
+
+        let resultsHTML = '';
+
+        axes.forEach(axis => {
+            let score = userScores[axis.id];
+            let max = maxScores[axis.id];
+            
+            let percentageLeft = max > 0 ? (50 + (score / max) * 50) : 50;
+            percentageLeft = Math.round(percentageLeft);
+            let percentageRight = 100 - Math.round(percentageLeft);
+
+            resultsHTML += `
+            <div class="axis-container ${axis.class}">
+                <div class="axis-labels">
+                    <span>${axis.iconL} ${axis.left}</span>
+                    <span>${axis.right} ${axis.iconR}</span>
+                </div>
+                <div class="bar-background">
+                    <div class="bar-left" style="width: ${percentageLeft}%">
+                        ${percentageLeft > 10 ? percentageLeft + '%' : ''}
+                    </div>
+                    <div class="bar-right" style="width: ${percentageRight}%">
+                        ${percentageRight > 10 ? percentageRight + '%' : ''}
+                    </div>
+                </div>
+            </div>
+            `;
+        });
+
+        document.getElementById('axes-results').innerHTML = resultsHTML;
+    }
+
+    // Pornește testul
+    renderQuestion();
+
+</script>
+</body>
+</html>
